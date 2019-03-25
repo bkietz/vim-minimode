@@ -1,0 +1,7 @@
+minimode	minimode.txt	/*minimode*
+minimode#activate	minimode.txt	/*minimode#activate*
+minimode#deactivation_for	minimode.txt	/*minimode#deactivation_for*
+minimode#newlist	minimode.txt	/*minimode#newlist*
+minimode-license	minimode.txt	/*minimode-license*
+minimode-toc	minimode.txt	/*minimode-toc*
+minimodes	minimode.txt	/*minimodes*

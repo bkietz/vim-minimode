@@ -1,0 +1,32 @@
+Execute (check deactivation generation):
+  AssertEqual minimode#get_deactivation_for('nmap ,n :Thing'), 'nunmap ,n'
+  AssertEqual minimode#get_deactivation_for('map! <expr> ,n Thing()'), 'unmap! <expr> ,n'
+  AssertEqual minimode#get_deactivation_for('iabbrev <buffer> <expr> -_- :depressed:'), 'iunabbrev <buffer> <expr> -_-'
+
+Execute (load test minimodes):
+  source minimodes.vim
+
+  call minimode#newlist('undo/redo', [[
+  \ 'nmap ,undoredo :call minimode#activate("undo/redo", 1)<CR>',
+  \ ], [
+  \ 'nmap <ESC> :call minimode#activate("undo/redo", 0)<CR>',
+  \ 'nmap u g-',
+  \ 'nmap r g+',
+  \ ]])
+
+Given html:
+  <p>
+  </p>
+
+Do (add --, mdash, --):
+  o--\<ESC>
+  ,mdash
+  o--\<ESC>
+  o--\<ESC>
+
+Expect html (--, mdash, --):
+  <p>
+  --
+  &mdash;
+  --
+  </p>

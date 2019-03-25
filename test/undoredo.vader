@@ -1,0 +1,28 @@
+Execute (load test minimodes):
+  source minimodes.vim
+
+Given yaml:
+
+Do (add some items):
+  ,undoredo
+  i---\<ESC>
+  o- Lorem\<ESC>
+  o- ipsum\<ESC>
+  o- dolor\<ESC>
+  o- sit\<ESC>
+  o- amet\<ESC>
+  o- consectetur\<ESC>
+  o- adipiscing\<ESC>
+  o- elit\<ESC>
+  urur
+
+Expect yaml (the items):
+  ---
+  - Lorem
+  - ipsum
+  - dolor
+  - sit
+  - amet
+  - consectetur
+  - adipiscing
+  - elit

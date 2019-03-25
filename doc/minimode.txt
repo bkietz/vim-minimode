@@ -1,0 +1,93 @@
+minimode.txt	minimode	Last change: March 20 2019
+MINIMODE - TABLE OF CONTENTS                             *minimode* *minimode-toc*
+==============================================================================
+
+  MINIMODES
+    minimode#activate(name, index)
+    minimode#newlist(name, activations)
+    Hooking deactivation
+    License
+
+MINIMODES                                                            *minimodes*
+==============================================================================
+
+This plugin provides a method for quickly and cleanly switching between groups
+of mappings, autocmds, and abbreviations.
+
+
+minimode#activate(name, index)                               *minimode#activate*
+==============================================================================
+
+Call |minimode#activate| to switch the minimode `name` to state `index`. (I imagine
+there will usually be only two possible states: default and activated. However
+|minimode#newlist| supports as many as you need.) This will `unmap` mappings,
+clear autocmds, and `unabbrev` abbreviations currently active in `name` and set up
+those corresponding to `index`.
+
+All minimodes begin in state 0.
+
+
+minimode#newlist(name, activations)                           *minimode#newlist*
+==============================================================================
+
+Minimodes are defined with lists of commands for setting up its possible
+states. Deactivations are automatically generated.
+
+For example one way to allow for rapid movement between splits and tabs
+would be:
+>
+    call minimode#newlist('InterBuffer', [[
+      \ 'nnoremap <M-n> :call minimode#activate("InterBuffer", 1)<CR>',
+      \ ], [
+      \ 'nnoremap <ESC> :call minimode#activate("InterBuffer", 0)<CR>',
+      \ 'nnoremap h <C-w>h',
+      \ 'nnoremap j <C-w>j',
+      \ 'nnoremap k <C-w>k',
+      \ 'nnoremap l <C-w>l',
+      \ 'nnoremap y :tabprev<CR>',
+      \ 'nnoremap u :tabnext<CR>',
+      \ ]])
+<
+`<M-n>` (the only mapping active by default) will put `InterBuffer` into state 1
+where `hjkl` will allow no-modifier navigation between splits. These mappings
+can be dismissed with `<ESC>` to return to normal in-buffer navigation.
+
+WARNING: minimodes will clobber mappings they are not aware of, so if you need
+something mapped by default it needs to go in the default activation list for
+the minimode which would clobber it.
+
+WARNING: minimodes do not support shortening command names. In ex mode
+`nm ,f :Foo<CR>` can be substituted for `nmap ,f :Foo<CR>` but minimode fails to
+recognize it and will not add the appropriate `unmap ,f` to the minimode's
+deactivation commands.
+
+
+Hooking deactivation                                 *minimode#deactivation_for*
+==============================================================================
+
+If you need to hook deactivation for a custom command you can do so by adding
+an entry to |minimode#deactivation_for|. The entry must be a function taking
+the arguments to your command as a single string and returning a corresponding
+deactivation command. For example:
+>
+    function minimode#deactivation_for.Thingify(args)
+      return 'UnThingify ' . matchlist(a:args, '(foo|bar)')[1]
+    endfunction
+<
+There are default deactivations for:
+
+- `(n|v|x|s|o|i|l|c|t|)(nore|)map(!?)`, with support for |:map-arguments|
+- `(c|i|)abbrev` and `abbreviate`, with support for `<expr>` and `<buffer>`
+- `autocmd`; each minimode declares a like-named `augroup` which it clears
+  and repopulates each time the minimode is reactivated.
+
+
+LICENSE                                                       *minimode-license*
+==============================================================================
+
+The MIT License (MIT)
+
+Copyright (c) 2019 Benjamin Kietzman
+
+==============================================================================
+vim:tw=78:sw=2:ts=2:ft=help:norl:nowrap:
