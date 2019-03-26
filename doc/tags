@@ -1,7 +1,9 @@
+:Minimode	minimode.txt	/*:Minimode*
+:MinimodeDefine	minimode.txt	/*:MinimodeDefine*
+Minimode_deactivation_for	minimode.txt	/*Minimode_deactivation_for*
+Minimode_indentblocksplit	minimode.txt	/*Minimode_indentblocksplit*
+Minimode_indentsplit	minimode.txt	/*Minimode_indentsplit*
 minimode	minimode.txt	/*minimode*
-minimode#activate	minimode.txt	/*minimode#activate*
-minimode#deactivation_for	minimode.txt	/*minimode#deactivation_for*
-minimode#newlist	minimode.txt	/*minimode#newlist*
 minimode-license	minimode.txt	/*minimode-license*
 minimode-toc	minimode.txt	/*minimode-toc*
 minimodes	minimode.txt	/*minimodes*
