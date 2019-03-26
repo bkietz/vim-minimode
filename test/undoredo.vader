@@ -1,6 +1,3 @@
-Execute (load test minimodes):
-  source minimodes.vim
-
 Given yaml:
 
 Do (add some items):
