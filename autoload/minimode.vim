@@ -1,11 +1,14 @@
-let g:Minimode_deactivation_for = {}
+let g:minimode#deactivation_for = {}
 
-function! g:Minimode_get_deactivation_for(cmd)
+function g:minimode#init()
+endfunction
+
+function! g:minimode#get_deactivation_for(cmd)
   let verb_args = matchlist(a:cmd, '\v^\s*(\i+!?)(.*)$')
-  if len(verb_args) == 0 || !has_key(g:Minimode_deactivation_for, verb_args[1])
+  if len(verb_args) == 0 || !has_key(g:minimode#deactivation_for, verb_args[1])
     return ''
   endif
-  return g:Minimode_deactivation_for[verb_args[1]](verb_args[2])
+  return g:minimode#deactivation_for[verb_args[1]](verb_args[2])
 endfunction
 
 " create deactivation command when the arguments are <special>s followed by a
@@ -30,8 +33,8 @@ endfunction
 
 function! s:define_simple_deactivation(prefix, verb)
   let Deactivation = {args -> s:simple_deactivation(a:prefix . 'un' . a:verb, args)}
-  let g:Minimode_deactivation_for[a:prefix . a:verb] = Deactivation
-  let g:Minimode_deactivation_for[a:prefix . 'nore' . a:verb] = Deactivation
+  let g:minimode#deactivation_for[a:prefix . a:verb] = Deactivation
+  let g:minimode#deactivation_for[a:prefix . 'nore' . a:verb] = Deactivation
 endfunction
 
 function! s:define_builtin_deactivations()
@@ -54,7 +57,7 @@ function! s:get_deactivation_block(activation_block)
   " build a list of deactivations in reverse order
   let deactivation_block = []
   for cmd in a:activation_block
-    let uncmd = Minimode_get_deactivation_for(cmd)
+    let uncmd = minimode#get_deactivation_for(cmd)
     if uncmd == '' | continue | endif
     call insert(deactivation_block, uncmd)
   endfor
@@ -115,7 +118,7 @@ function! s:make(name, activations)
   return mode
 endfunction
 
-command! -nargs=* Minimode call s:command(<f-args>)
+command! -nargs=* MinimodeSet call s:command(<f-args>)
 
 function! s:command(mode, ...)
   let mode = s:modes[a:mode]
@@ -125,30 +128,31 @@ function! s:command(mode, ...)
   return mode.states[a:0].activate()
 endfunction
 
-command! -bang -nargs=* MinimodeDefine call s:define(<bang>0, <q-args>)
+command! -bang -nargs=* Minimode call s:define(<bang>0, <q-args>)
 
 function! s:define(override, defstr)
-  let [name, states] = matchlist(a:defstr, '\v^(\S+)(.*)$')[1:2]
+  let [expr, name, states] = matchlist(a:defstr, '\v^(\s*\<expr\>\s+|)(\i+)(.*)$')[1:3]
   if !a:override && has_key(s:modes, name)
     throw 'Minimode with name ' . name
-      \ . ' already defined, use MinimodeDefine! to override'
+      \ . ' already defined, use Minimode! to override'
   endif
-  let states = eval(states)
-  if type(states) == type('')
-    let states = Minimode_indentblocksplit(states)
+  if expr != ''
+    let states = eval(states)
+  else
+    let states = minimode#indentblocksplit(states)
   endif
   call s:make(name, states)
 endfunction
 
 " public for testing purposes
-function! g:Minimode_indentsplit(str) abort
+function! g:minimode#indentsplit(str) abort
   let indent = matchlist(a:str, '\v^(\s+)\S.*$')[1]
   return split(a:str, indent)
 endfunction
 
-function! g:Minimode_indentblocksplit(str) abort
+function! g:minimode#indentblocksplit(str) abort
   let [divider, rest] = matchlist(a:str, '\v^(\S+)(.*)$')[1:2]
   let blocks = split(rest, divider)
-  return map(blocks, { i, block -> Minimode_indentsplit(block) })
+  return map(blocks, { i, block -> minimode#indentsplit(block) })
 endfunction
 

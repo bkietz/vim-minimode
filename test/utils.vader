@@ -1,42 +1,42 @@
 Execute (deactivation generation):
-  AssertEqual 'nunmap ,n', Minimode_get_deactivation_for('nmap ,n :Thing')
-  AssertEqual 'unmap! <expr> ,n', Minimode_get_deactivation_for('map! <expr> ,n Thing()')
+  AssertEqual 'nunmap ,n', minimode#get_deactivation_for('nmap ,n :Thing')
+  AssertEqual 'unmap! <expr> ,n', minimode#get_deactivation_for('map! <expr> ,n Thing()')
   AssertEqual 'iunabbrev <buffer> <expr> -_-',
-    \ Minimode_get_deactivation_for('iabbrev <buffer> <expr> -_- ":depressed:"')
-  AssertEqual '', Minimode_get_deactivation_for('" a comment')
+    \ minimode#get_deactivation_for('iabbrev <buffer> <expr> -_- ":depressed:"')
+  AssertEqual '', minimode#get_deactivation_for('" a comment')
 
 Execute (indent splitting):
   AssertEqual '   hello   world', '
   \   hello
   \   world
   \'
-  AssertEqual ['hello', 'world'], Minimode_indentsplit('
+  AssertEqual ['hello', 'world'], minimode#indentsplit('
   \   hello
   \   world
   \')
-  AssertEqual ['hello', 'world '], Minimode_indentsplit('
+  AssertEqual ['hello', 'world '], minimode#indentsplit('
   \   hello
   \   world
   \ ')
-  AssertEqual ['hello  world'], Minimode_indentsplit('
+  AssertEqual ['hello  world'], minimode#indentsplit('
   \   hello
   \  world
   \')
-  AssertEqual ['hello', ' world'], Minimode_indentsplit('
+  AssertEqual ['hello', ' world'], minimode#indentsplit('
   \   hello
   \    world
   \')
-  AssertEqual ['nmap ,t', ' :T<CR>', 'nmap <C-t> :T<CR>'], Minimode_indentsplit('
+  AssertEqual ['nmap ,t', ' :T<CR>', 'nmap <C-t> :T<CR>'], minimode#indentsplit('
   \   nmap ,t    :T<CR>
   \   nmap <C-t> :T<CR>
   \')
-  AssertEqual ['nmap ,t    :T<CR>', 'nmap <C-t> :T<CR>'], Minimode_indentsplit('
+  AssertEqual ['nmap ,t    :T<CR>', 'nmap <C-t> :T<CR>'], minimode#indentsplit('
   \     nmap ,t    :T<CR>
   \     nmap <C-t> :T<CR>
   \')
 
 Execute (indent blocking):
-  AssertEqual [['hello', 'world'], ['foo', 'bar']], Minimode_indentblocksplit('
+  AssertEqual [['hello', 'world'], ['foo', 'bar']], minimode#indentblocksplit('
   \---
   \   hello
   \   world

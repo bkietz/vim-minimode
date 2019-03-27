@@ -3,8 +3,8 @@ MINIMODE - TABLE OF CONTENTS                             *minimode* *minimode-to
 ==============================================================================
 
   MINIMODES
-    :Minimode {name} [{newstate}]
-    :MinimodeDefine[!] {name} {activations}
+    :MinimodeSet {name} [{newstate}]
+    :Minimode[!] {name} {activations}
     Hooking deactivation
     Multiline strings
     License
@@ -16,21 +16,21 @@ This plugin provides a method for quickly and cleanly switching between groups
 of mappings, autocmds, and abbreviations.
 
 
-:Minimode {name} [{index}]                                           *:Minimode*
+:MinimodeSet {name} [{index}]                                     *:MinimodeSet*
 ==============================================================================
 
-Conceptually a minimode is a tuple (usually just a pair) of blocks of
-commands, one for each state of the minimode. |:Minimode| switches beteeen these
+Conceptually a minimode is a tuple (usually just a pair) of command blocks,
+one for each state of the minimode. |:MinimodeSet| switches beteeen these
 states, running the commands in the {index}th block of minimode {name}. If
-{index} is not provided then |:Minimode| will switch into and out of state 0.
+{index} is not provided then |:MinimodeSet| will switch into and out of state 0.
 
-In addition (before the activation is run) |:Minimode| will clean up the
-currently active state: `unmap` mappings, clear autocmds, and `unabbrev` abbrevs.
+In addition (before the activation is run) |:MinimodeSet| will clean up the
+currently active state: `unmap` mappings, clear `autocmd`s, and `unabbrev` abbrevs.
 
 All minimodes begin in state 0.
 
 
-:MinimodeDefine[!] {name} {activations}                        *:MinimodeDefine*
+:Minimode[!] {name} {activations}                                    *:Minimode*
 ==============================================================================
 
 Minimodes are defined with lists of commands for setting up its possible
@@ -39,19 +39,19 @@ states. Deactivations are automatically generated.
 For example one way to allow for rapid movement between splits and tabs
 would be:
 >
-    MinimodeDefine InterBuffer '
-      \----
-      \    nnoremap N :Minimode InterBuffer<CR>
+    call minimode#init()
+    Minimode InterBuffer
+      \""""
+      \    nnoremap N :MinimodeSet InterBuffer<CR>
       \
-      \----
-      \    nnoremap <Space> :Minimode InterBuffer<CR>
+      \""""
+      \    nnoremap <Space> :MinimodeSet InterBuffer<CR>
       \    nnoremap h <C-w>h
       \    nnoremap j <C-w>j
       \    nnoremap k <C-w>k
       \    nnoremap l <C-w>l
       \    nnoremap y :tabprev<CR>
       \    nnoremap u :tabnext<CR>
-      \'
 <
 `N` (the only mapping active by default) will put `InterBuffer` into state 1
 where `hjkl` will allow no-modifier navigation between splits. These mappings
@@ -66,21 +66,21 @@ WARNING: minimodes do not support shortening command names. In ex mode
 recognize it and will not add the appropriate `unmap ,f` to the minimode's
 deactivation commands.
 
-NOTE: |Minimode_indentblocksplit| for more information about this long string.
-|:MinimodeDefine| can also accept a list of list of executable strings as
+NOTE: |minimode#indentblocksplit| for more information about this long string.
+|:Minimode| can also accept a list of list of executable strings as
 its second argument. If you want to define a minimode programatically, it
 might be easier to use that.
 
 
-Hooking deactivation                                 *Minimode_deactivation_for*
+Hooking deactivation                                 *minimode#deactivation_for*
 ==============================================================================
 
 If you need to hook deactivation for a custom command you can do so by adding
-an entry to |Minimode_deactivation_for|. The entry must be a function taking
+an entry to |minimode#deactivation_for|. The entry must be a function taking
 the arguments to your command as a single string and returning a corresponding
 deactivation command. For example:
 >
-    function Minimode_deactivation_for.Thingify(args)
+    function minimode#deactivation_for.Thingify(args)
       return 'UnThingify ' . matchlist(a:args, '(foo|bar)')[1]
     endfunction
 <
@@ -92,26 +92,26 @@ There are default deactivations for:
   and repopulates each time the minimode is reactivated.
 
 
-Multiline strings               *Minimode_indentsplit* *Minimode_indentblocksplit*
+Multiline strings               *minimode#indentsplit* *minimode#indentblocksplit*
 ==============================================================================
 
 Python has `"""` strings, which is a feature I miss like an appendage whenever a
 language doesn't support it. Vimscript allows writing strings which span
 multiple lines but it doesn't capture newlines, so we have to infer where
 to break the lines. In idiomatic Vimscript, when writing multiline strings one
-indents a ways from the `\` for clarity, and |Minimode_indentsplit| relies on
+indents a ways from the `\` for clarity, and |minimode#indentsplit| relies on
 that to insert your line breaks: lots of leading whitespace is assumed to be
 an indent, and it is replaced with line breaks.
 >
-    AssertEqual ['a', 'b c'], Minimode_indentblocksplit('
+    AssertEqual ['a', 'b c'], minimode#indentblocksplit('
       \    a
       \    b c
       \'
 <
-|Minimode_indentblocksplit| takes this a bit further and allows you to define
+|minimode#indentblocksplit| takes this a bit further and allows you to define
 section dividers:
 >
-    AssertEqual [['a', 'b c'], ['d', 'e f']], Minimode_indentblocksplit('
+    AssertEqual [['a', 'b c'], ['d', 'e f']], minimode#indentblocksplit('
       \----
       \    a
       \    b c
@@ -127,12 +127,11 @@ make sure that the indent doesn't appear anywhere else in your string
 columns inside your string may produce incorrect lines!
 >
     let not_the_lines_I_ordered = ['nmap <C-t> :T<CR>', 'nmap t', ' :T!<CR>']
-    AssertEqual not_the_lines_I_ordered, Minimode_indentblocksplit('
+    AssertEqual not_the_lines_I_ordered, minimode#indentblocksplit('
       \    nmap <C-t> :T<CR>
       \    nmap t     :T!<CR>
       \'
 <
-
 
 LICENSE                                                       *minimode-license*
 ==============================================================================
