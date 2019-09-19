@@ -65,7 +65,21 @@ function! s:get_deactivation_block(activation_block)
 endfunction
 
 function! s:_activate(state)
-  for cmd in a:state.activation_block | execute cmd | endfor
+  for cmd in a:state.activation_block
+    let wrapper_cmd = matchlist(cmd, '\v^\s*(MinimodeOnce|MinimodeSubsequently)\s+(.*)$')
+    if len(wrapper_cmd) != 0
+      " reserved wrappers for commands
+      if wrapper_cmd[1] == 'MinimodeSubsequently' && a:state.once
+        execute wrapper_cmd[2]
+      endif
+      if wrapper_cmd[1] == 'MinimodeOnce' && !a:state.once
+        execute wrapper_cmd[2]
+      endif
+      continue
+    endif
+    execute cmd
+  endfor
+  let a:state.once = 1
 endfunction
 
 function! s:_deactivate(state)
@@ -74,7 +88,9 @@ function! s:_deactivate(state)
     let a:state.deactivation_block = s:get_deactivation_block(a:state.activation_block)
     call insert(a:state.deactivation_block, 'autocmd! ' . a:state.mode.name)
   endif
-  for cmd in a:state.deactivation_block | execute cmd | endfor
+  for cmd in a:state.deactivation_block
+    execute cmd
+  endfor
 endfunction
 
 let s:modes = {}
@@ -95,6 +111,7 @@ function! s:make(name, activations)
       \ 'mode': mode,
       \ 'index': len(mode.states),
       \ 'activation_block': block,
+      \ 'once': 0,
       \ }
 
     function state.activate() dict
